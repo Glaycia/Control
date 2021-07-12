@@ -46,12 +46,23 @@ public class SSController {
 		LQRGen.computeK();
 		this.K = LQRGen.K;
 	}
-	void iterate(SimpleMatrix X) {
-		SimpleMatrix X_dot = X.mult(A.minus(B.mult(K))).plus(B.mult(K).mult(R));
-		//Xdot = X(A-BK)+BKR
-		Y = X.mult(C.minus(D.mult(K))).plus(D.mult(K).mult(R));
-		//Y = X(C-DK)+DKR
-		
-		X = X.plus(X_dot);
+	void update(SimpleMatrix newState) {
+		X = newState;
 	}
+	void update(SimpleMatrix newState, SimpleMatrix newReference) {
+		X = newState;
+		R = newReference;
+	}
+	SimpleMatrix computeOutput() {
+		SimpleMatrix Control = K.mult(R.minus(X));
+		return Control;
+	}
+//	void iterate(SimpleMatrix X) {
+//		SimpleMatrix X_dot = X.mult(A.minus(B.mult(K))).plus(B.mult(K).mult(R));
+//		//Xdot = X(A-BK)+BKR
+//		Y = X.mult(C.minus(D.mult(K))).plus(D.mult(K).mult(R));
+//		//Y = X(C-DK)+DKR
+//		
+//		X = X.plus(X_dot);
+//	}
 }

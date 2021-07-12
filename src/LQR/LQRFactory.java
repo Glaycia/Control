@@ -16,9 +16,7 @@ public class LQRFactory {
 	//SimpleMatrix U; //Controls x 1
 	SimpleMatrix S; //Solving Matrix
 	SimpleMatrix K; //Controller Gain Matrix
-	void DAREIteration() {
-		//DiscreteSolve by iteration 
-	}
+	
 	void CARERicattiArimotoPotter() {
 		//This one is Continuous, larger gains
 		//https://github.com/TakaHoribe/Riccati_Solver/blob/master/riccati_solver.cpp
@@ -74,6 +72,28 @@ public class LQRFactory {
 		SimpleMatrix M2 = EigenVector.cols(dim_X - 1, dim_X * 2 - 1);
 		
 		S = M1.invert().mult(M2);
+	}
+	void DAREIteration(int maxIter, double tolerance) {
+		//https://github.com/TakaHoribe/Riccati_Solver/blob/master/riccati_solver.cpp
+		SimpleMatrix P = new SimpleMatrix(Q.numRows(), Q.numCols());
+		
+		SimpleMatrix PNext;
+		
+		SimpleMatrix AT = A.transpose();
+		SimpleMatrix BT = B.transpose();
+		//SimpleMatrix RInv = R.invert();
+		
+		double diff;
+		
+		for(int i = 0; i < maxIter; i++) {
+			PNext = AT.mult(P).mult(A).minus(AT.mult(P).mult(B).mult(R.plus(BT.mult(P).mult(B).invert())).mult(BT).mult(P).mult(A)).plus(Q);
+			diff = (PNext.minus(P).elementMaxAbs());
+			P = PNext;
+			if(diff < tolerance) {
+				S = P;
+			}
+		}
+		
 	}
 	void computeK() {
 		K = R.invert().mult(B.transpose()).mult(S);

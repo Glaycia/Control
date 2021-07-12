@@ -15,13 +15,13 @@ public class DCPController {
 		
 		DCSSC.C.set(0, 0, 1);
 	}
-	void iterate(double position, double velocity, double current) {
-		SimpleMatrix X = new SimpleMatrix(3, 1);
-		X.set(0, 0, position);
-		X.set(1, 0, velocity);
-		X.set(2, 0, current);
-		DCSSC.iterate(X);
-	}
+//	void iterate(double position, double velocity, double current) {
+//		SimpleMatrix X = new SimpleMatrix(3, 1);
+//		X.set(0, 0, position);
+//		X.set(1, 0, velocity);
+//		X.set(2, 0, current);
+//		DCSSC.iterate(X);
+//	}
 }
 
 /*
