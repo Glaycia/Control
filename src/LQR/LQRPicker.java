@@ -14,8 +14,8 @@ public class LQRPicker {
 	}
 	
 	LQRPicker(SimpleMatrix StateErrorTolerance, SimpleMatrix ControlErrorTolerance, double StateControlCostRatio){	
-		Q.set(ColumnToDiagCost(StateErrorTolerance));
-		R.set(ColumnToDiagCost(ControlErrorTolerance));
+		Q = (ColumnToDiagCost(StateErrorTolerance));
+		R = (ColumnToDiagCost(ControlErrorTolerance));
 		
 		R.scale(StateControlCostRatio); //Bigger Cost Means Control Is Expensive, Smaller Cost Means Non Reference State is Expensive
 	}
