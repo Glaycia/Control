@@ -32,8 +32,13 @@ public class DCVController {
 		LQRPicker costPicker = new LQRPicker(StateMaxError, ControlMax, stateImportance);
 		DCSSC.SetLQR(costPicker.Q, costPicker.R);
 	}
+<<<<<<< HEAD
 	public double returnVoltage(double currentVelocity, double desiredVelocity) {
 		return returnVoltage(currentVelocity, 0, desiredVelocity, 0);
+=======
+	double returnVoltage(double currentVelocity, double currentCurrent, double desiredVelocity) {
+		return returnVoltage(currentVelocity, currentCurrent, desiredVelocity, 0);
+>>>>>>> 47f464a36466a6f8e4d2fd3e171f1d29f3c1af29
 	}
 	public double returnVoltage(double currentVelocity, double currentCurrent, double desiredVelocity, double desiredCurrent) {
 		SimpleMatrix CurrentState = new SimpleMatrix(2, 1);
