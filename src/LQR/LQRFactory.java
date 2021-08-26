@@ -68,6 +68,7 @@ public class LQRFactory {
 				j++;
 			}
 		}
+
 		SimpleMatrix M1 = EigenVector.cols(0, dim_X - 1);
 		SimpleMatrix M2 = EigenVector.cols(dim_X - 1, dim_X * 2 - 1);
 		
@@ -75,7 +76,7 @@ public class LQRFactory {
 	}
 	void DAREIteration(int maxIter, double tolerance) {
 		//https://github.com/TakaHoribe/Riccati_Solver/blob/master/riccati_solver.cpp
-		SimpleMatrix P = new SimpleMatrix(Q.numRows(), Q.numCols());
+		SimpleMatrix P = Q;
 		
 		SimpleMatrix PNext;
 		
@@ -86,7 +87,14 @@ public class LQRFactory {
 		double diff;
 		
 		for(int i = 0; i < maxIter; i++) {
-			PNext = AT.mult(P).mult(A).minus(AT.mult(P).mult(B).mult(R.plus(BT.mult(P).mult(B).invert())).mult(BT).mult(P).mult(A)).plus(Q);
+			//BT.mult(P).mult(B).invert().print();
+			
+			SimpleMatrix Term1 = AT.mult(P).mult(A);
+			SimpleMatrix Term2 = R.plus(BT.mult(P).mult(B)).invert();
+			SimpleMatrix Term3 = AT.mult(P).mult(B).mult(Term2);
+			SimpleMatrix Term4 = (BT).mult(P).mult(A);
+			
+			PNext = Term1.minus((Term3).mult(Term4)).plus(Q);
 			diff = (PNext.minus(P).elementMaxAbs());
 			P = PNext;
 			if(diff < tolerance) {

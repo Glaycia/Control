@@ -1,90 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-15">
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.launching.macosx.MacOSXType/Java SE 11.0.2 [11.0.2]">
 		<attributes>
 			<attribute name="module" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="C:/Users/glaci/Downloads/ejml-v0.40-libs/ejml-cdense-0.40.jar">
-		<attributes>
-			<attribute name="module" value="true"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="C:/Users/glaci/Downloads/ejml-v0.40-libs/ejml-cdense-0.40-sources.jar">
-		<attributes>
-			<attribute name="module" value="true"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="C:/Users/glaci/Downloads/ejml-v0.40-libs/ejml-core-0.40.jar">
-		<attributes>
-			<attribute name="module" value="true"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="C:/Users/glaci/Downloads/ejml-v0.40-libs/ejml-core-0.40-sources.jar">
-		<attributes>
-			<attribute name="module" value="true"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="C:/Users/glaci/Downloads/ejml-v0.40-libs/ejml-ddense-0.40.jar">
-		<attributes>
-			<attribute name="module" value="true"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="C:/Users/glaci/Downloads/ejml-v0.40-libs/ejml-ddense-0.40-sources.jar">
-		<attributes>
-			<attribute name="module" value="true"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="C:/Users/glaci/Downloads/ejml-v0.40-libs/ejml-dsparse-0.40.jar">
-		<attributes>
-			<attribute name="module" value="true"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="C:/Users/glaci/Downloads/ejml-v0.40-libs/ejml-dsparse-0.40-sources.jar">
-		<attributes>
-			<attribute name="module" value="true"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="C:/Users/glaci/Downloads/ejml-v0.40-libs/ejml-experimental-0.40.jar">
-		<attributes>
-			<attribute name="module" value="true"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="C:/Users/glaci/Downloads/ejml-v0.40-libs/ejml-experimental-0.40-sources.jar">
-		<attributes>
-			<attribute name="module" value="true"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="C:/Users/glaci/Downloads/ejml-v0.40-libs/ejml-fdense-0.40.jar">
-		<attributes>
-			<attribute name="module" value="true"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="C:/Users/glaci/Downloads/ejml-v0.40-libs/ejml-fdense-0.40-sources.jar">
-		<attributes>
-			<attribute name="module" value="true"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="C:/Users/glaci/Downloads/ejml-v0.40-libs/ejml-simple-0.40.jar">
-		<attributes>
-			<attribute name="module" value="true"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="C:/Users/glaci/Downloads/ejml-v0.40-libs/ejml-simple-0.40-sources.jar">
-		<attributes>
-			<attribute name="module" value="true"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="C:/Users/glaci/Downloads/ejml-v0.40-libs/ejml-zdense-0.40.jar">
-		<attributes>
-			<attribute name="module" value="true"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="C:/Users/glaci/Downloads/ejml-v0.40-libs/ejml-zdense-0.40-sources.jar">
-		<attributes>
-			<attribute name="module" value="true"/>
-		</attributes>
-	</classpathentry>
+	<classpathentry kind="lib" path="/Users/baotran/Documents/Control/ejml-0.41-libs/ejml-zdense-0.41.jar" sourcepath="/Users/baotran/Documents/Control/ejml-0.41-libs/ejml-zdense-0.41-sources.jar"/>
+	<classpathentry kind="lib" path="/Users/baotran/Documents/Control/ejml-0.41-libs/ejml-dsparse-0.41.jar" sourcepath="/Users/baotran/Documents/Control/ejml-0.41-libs/ejml-dsparse-0.41-sources.jar"/>
+	<classpathentry kind="lib" path="/Users/baotran/Documents/Control/ejml-0.41-libs/ejml-cdense-0.41.jar" sourcepath="/Users/baotran/Documents/Control/ejml-0.41-libs/ejml-cdense-0.41-sources.jar"/>
+	<classpathentry kind="lib" path="/Users/baotran/Documents/Control/ejml-0.41-libs/ejml-ddense-0.41.jar" sourcepath="/Users/baotran/Documents/Control/ejml-0.41-libs/ejml-ddense-0.41-sources.jar"/>
+	<classpathentry kind="lib" path="/Users/baotran/Documents/Control/ejml-0.41-libs/ejml-core-0.41.jar" sourcepath="/Users/baotran/Documents/Control/ejml-0.41-libs/ejml-core-0.41-sources.jar"/>
+	<classpathentry kind="lib" path="/Users/baotran/Documents/Control/ejml-0.41-libs/ejml-experimental-0.41.jar" sourcepath="/Users/baotran/Documents/Control/ejml-0.41-libs/ejml-experimental-0.41-sources.jar"/>
+	<classpathentry kind="lib" path="/Users/baotran/Documents/Control/ejml-0.41-libs/ejml-fdense-0.41.jar" sourcepath="/Users/baotran/Documents/Control/ejml-0.41-libs/ejml-fdense-0.41-sources.jar"/>
+	<classpathentry kind="lib" path="/Users/baotran/Documents/Control/ejml-0.41-libs/ejml-simple-0.41.jar" sourcepath="/Users/baotran/Documents/Control/ejml-0.41-libs/ejml-simple-0.41-sources.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

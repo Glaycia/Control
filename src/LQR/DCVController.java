@@ -2,11 +2,11 @@ package LQR;
 import org.ejml.simple.SimpleMatrix;
 
 public class DCVController {
-	SSController DCSSC = new SSController(2, 1, 1);
+	public SSController DCSSC = new SSController(2, 1, 1);
 	
 	double j, b, k, r, l;
 	
-	DCVController(double j, double b, double k, double r, double l){
+	public DCVController(double j, double b, double k, double r, double l){
 		this.j = j;
 		this.b = b;
 		this.k = k;
@@ -23,7 +23,7 @@ public class DCVController {
 		DCSSC.C.set(0, 0, 1);
 	}
 	
-	void GainSetter(double maxVelError, double maxCurrentError, double maxVoltage, double stateImportance) {
+	public void GainSetter(double maxVelError, double maxCurrentError, double maxVoltage, double stateImportance) {
 		SimpleMatrix StateMaxError = new SimpleMatrix(2, 1);
 		SimpleMatrix ControlMax = new SimpleMatrix(1, 1);
 		StateMaxError.set(0, 0, maxVelError);
@@ -32,12 +32,17 @@ public class DCVController {
 		LQRPicker costPicker = new LQRPicker(StateMaxError, ControlMax, stateImportance);
 		DCSSC.SetLQR(costPicker.Q, costPicker.R);
 	}
-	double returnVoltage(double currentVelocity, double desiredVelocity) {
+	public double returnVoltage(double currentVelocity, double desiredVelocity) {
 		return returnVoltage(currentVelocity, 0, desiredVelocity, 0);
 	}
-	double returnVoltage(double currentVelocity, double currentCurrent, double desiredVelocity, double desiredCurrent) {
+	public double returnVoltage(double currentVelocity, double currentCurrent, double desiredVelocity, double desiredCurrent) {
 		SimpleMatrix CurrentState = new SimpleMatrix(2, 1);
 		SimpleMatrix DesiredState = new SimpleMatrix(2, 1);
+		
+		CurrentState.set(0, 0, currentVelocity);
+		CurrentState.set(0, 1, currentCurrent);
+		DesiredState.set(0, 0, desiredVelocity);
+		DesiredState.set(0, 1, desiredCurrent);
 		
 		DCSSC.update(CurrentState, DesiredState);
 		

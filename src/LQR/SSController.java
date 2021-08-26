@@ -7,17 +7,17 @@ public class SSController {
 	int outputs;
 	
 	//[A, B] * [B, C] = [A, C]
-	SimpleMatrix A; //System Matrix (States x States)
-	SimpleMatrix B; //Input Matrix (States x Inputs)
-	SimpleMatrix C; //Output Matrix (Outputs x States)
-	SimpleMatrix D; //Feedthrough Matrix (Inputs x States)
+	public SimpleMatrix A; //System Matrix (States x States)
+	public SimpleMatrix B; //Input Matrix (States x Inputs)
+	public SimpleMatrix C; //Output Matrix (Outputs x States)
+	public SimpleMatrix D; //Feedthrough Matrix (Inputs x States)
 	
-	SimpleMatrix K; //Controller Gain Matrix
+	public SimpleMatrix K; //Controller Gain Matrix
 	
-	SimpleMatrix X; //State Vector (States x 1)
-	SimpleMatrix U; //Input Vector (Inputs x 1)
-	SimpleMatrix Y; //Output Vector(Outputs x 1)
-	SimpleMatrix R; //Reference Vector(States x 1)
+	public SimpleMatrix X; //State Vector (States x 1)
+	public SimpleMatrix U; //Input Vector (Inputs x 1)
+	public SimpleMatrix Y; //Output Vector(Outputs x 1)
+	public SimpleMatrix R; //Reference Vector(States x 1)
 	
 	SSController(int states, int inputs, int outputs){
 		this.states = states;
@@ -42,7 +42,8 @@ public class SSController {
 		LQRGen.B = this.B;
 		LQRGen.Q = QCost;
 		LQRGen.R = RCost;
-		LQRGen.DARERicattiArimotoPotter();
+		//LQRGen.DARERicattiArimotoPotter();
+		LQRGen.DAREIteration(1000, 0.001);
 		LQRGen.computeK();
 		this.K = LQRGen.K;
 	}
