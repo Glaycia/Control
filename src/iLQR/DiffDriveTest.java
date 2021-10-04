@@ -40,7 +40,7 @@ public class DiffDriveTest {
 		obstacles.add(Obstacle(4, 7));
 		obstacles.add(Obstacle(9, 8));
 		
-		DiffDriveILQR trajOpt = new DiffDriveILQR(initState, initControl, defaultTargetState, defaultControlState, Q, R, q, obstacles);
+		DiffDriveILQR trajOpt = new DiffDriveILQR(initState, initControl, defaultTargetState, defaultControlState, obstacles, Q, R, q, obstacles);
 		
 		trajOpt.iterativeLQR(100, defaultTargetState, defaultControlState, 1000);
 	}

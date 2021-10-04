@@ -55,7 +55,7 @@ public class SSController {
 		R = newReference;
 	}
 	SimpleMatrix computeOutput() {
-		SimpleMatrix Control = K.mult(R.minus(X));
+		SimpleMatrix Control = K.mult(R.minus(X)).negative();
 		return Control;
 	}
 //	void iterate(SimpleMatrix X) {

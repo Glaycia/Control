@@ -21,11 +21,12 @@ public class DiffDriveILQR {
 	
 	ArrayList<SimpleMatrix> obstacles;
 	
-	DiffDriveILQR(SimpleMatrix initState, SimpleMatrix initControl, SimpleMatrix targetState, SimpleMatrix controlState, SimpleMatrix Q, SimpleMatrix R, double q, ArrayList<SimpleMatrix> obstaclePositions){
+	DiffDriveILQR(SimpleMatrix initState, SimpleMatrix initControl, SimpleMatrix targetState, SimpleMatrix controlState, ArrayList<SimpleMatrix> obstacles, SimpleMatrix Q, SimpleMatrix R, double q, ArrayList<SimpleMatrix> obstaclePositions){
 		this.initState = initState;
 		this.initControl = initControl;
 		this.defaultTargetState = targetState;
 		this.defaultControlState = controlState;
+		this.obstacles = obstacles;
 		this.costQ = Q;
 		this.costR = R;
 		this.costq = q;
@@ -45,7 +46,7 @@ public class DiffDriveILQR {
 		return XDot;
 	}
 	SimpleMatrix dynJacobianX(SimpleMatrix a, SimpleMatrix b, double step){
-		SimpleMatrix A = new SimpleMatrix(a.numRows(), b.numRows());
+		SimpleMatrix A = new SimpleMatrix(3, a.numRows());
 		SimpleMatrix ar = a;
 		SimpleMatrix al = a;
 		
@@ -53,7 +54,7 @@ public class DiffDriveILQR {
 			ar.set(i, ar.get(i) + step);
 			al.set(i, al.get(i) - step);
 			
-			A.combine(i, 0, (Dynamics(ar, b).minus(Dynamics(al, b))).divide(2 * step));
+			A.insertIntoThis(0, i, (Dynamics(ar, b).minus(Dynamics(al, b))).divide(2 * step));
 			
 			ar.set(i, 0, a.get(i, 0));
 			al.set(i, 0, a.get(i, 0));
@@ -64,7 +65,7 @@ public class DiffDriveILQR {
 		return dynJacobianX(a, b, DefaultStepSize);
 	}
 	SimpleMatrix dynJacobianU(SimpleMatrix a, SimpleMatrix b, double step){
-		SimpleMatrix B = new SimpleMatrix(a.numRows(), b.numRows());
+		SimpleMatrix B = new SimpleMatrix(3, b.numRows());
 		SimpleMatrix br = b;
 		SimpleMatrix bl = b;
 		
@@ -72,9 +73,8 @@ public class DiffDriveILQR {
 			br.set(i, br.get(i) + step);
 			bl.set(i, bl.get(i) - step);
 			
-			for(int j = 0; j < b.numRows(); j++) {
-				B.combine(i, 0, (Dynamics(a, br).minus(Dynamics(a, bl))).divide(2 * step));
-			}
+			B.insertIntoThis(0, i, (Dynamics(a, br).minus(Dynamics(a, bl))).divide(2 * step));
+			
 			br.set(i, 0, a.get(i, 0));
 			bl.set(i, 0, a.get(i, 0));
 		}
@@ -152,7 +152,7 @@ public class DiffDriveILQR {
 		return cEllHessian(State, DefaultStepSize);
 	}
 	SimpleMatrix cTJacobian1(SimpleMatrix State, SimpleMatrix Control, double step){
-		SimpleMatrix A = new SimpleMatrix(State.numRows(), 1);
+		SimpleMatrix A = new SimpleMatrix(1, State.numRows());
 		SimpleMatrix ar = State;
 		SimpleMatrix al = State;
 		
@@ -161,18 +161,20 @@ public class DiffDriveILQR {
 			al.set(i, al.get(i) - step);
 			
 			for(int j = 0; j < State.numRows(); j++) {
-				A.set(i, 0, (cT(ar, Control) - (cT(al, Control)))/(2 * step));
+				A.set(0, j, (cT(ar, Control) - (cT(al, Control)))/(2 * step));
 			}
+			
 			ar.set(i, 0, State.get(i, 0));
 			al.set(i, 0, State.get(i, 0));
 		}
+		A.print();
 		return A;
 	}
 	SimpleMatrix cTJacobian1(SimpleMatrix State, SimpleMatrix Control) {
 		return cTJacobian1(State, Control, DefaultStepSize);
 	}
 	SimpleMatrix cTJacobian2(SimpleMatrix State, SimpleMatrix Control, double step){
-		SimpleMatrix B = new SimpleMatrix(Control.numRows(), 1);
+		SimpleMatrix B = new SimpleMatrix(1, Control.numRows());
 		SimpleMatrix br = Control;
 		SimpleMatrix bl = Control;
 		
@@ -181,11 +183,12 @@ public class DiffDriveILQR {
 			bl.set(i, bl.get(i) - step);
 			
 			for(int j = 0; j < Control.numRows(); j++) {
-				B.set(i, 0, (cT(State, br) - (cT(State, bl)))/(2 * step));
+				B.set(0, j, (cT(State, br) - (cT(State, bl)))/(2 * step));
 			}
 			br.set(i, 0, Control.get(i, 0));
 			bl.set(i, 0, Control.get(i, 0));
 		}
+		B.print();
 		return B;
 	}
 	SimpleMatrix cTJacobian2(SimpleMatrix State, SimpleMatrix Control) {
@@ -240,47 +243,47 @@ public class DiffDriveILQR {
 		return cTHessian1(State, Control, DefaultStepSize);
 	}
 	SimpleMatrix cTHessian2(SimpleMatrix State, SimpleMatrix Control, double step) {
-		SimpleMatrix ar = Control;
-		SimpleMatrix al = Control;
+		SimpleMatrix br = Control;
+		SimpleMatrix bl = Control;
 		
 		//double p = cT(State, Control);
 		
 		SimpleMatrix Q = new SimpleMatrix(State.numRows(), State.numRows());
 		
-		for(int i = 0; i < State.numRows(); i ++) {
-			ar.set(i, ar.get(i) + step);
-			al.set(i, ar.get(i) - step);
-			Q.set(i, i, (cT(State, al) - 2 * cT(State, Control) + cT(State, ar))/(step * step));
-			ar.set(i, State.get(i));
-			al.set(i, State.get(i));
+		for(int i = 0; i < Control.numRows(); i ++) {
+			br.set(i, br.get(i) + step);
+			bl.set(i, br.get(i) - step);
+			Q.set(i, i, (cT(State, bl) - 2 * cT(State, Control) + cT(State, br))/(step * step));
+			br.set(i, State.get(i));
+			bl.set(i, State.get(i));
 		}
 		
-		SimpleMatrix atr = Control;
-		SimpleMatrix atl = Control;
-		SimpleMatrix abr = Control;
-		SimpleMatrix abl = Control;
+		SimpleMatrix btr = Control;
+		SimpleMatrix btl = Control;
+		SimpleMatrix bbr = Control;
+		SimpleMatrix bbl = Control;
 		
-		for(int i = 0; i < State.numRows(); i ++) {
-			atr.set(i, atr.get(i) + step);
-			atl.set(i, atl.get(i) - step);
-			abr.set(i, abr.get(i) + step);
-			abl.set(i, abl.get(i) - step);
+		for(int i = 0; i < Control.numRows(); i ++) {
+			btr.set(i, btr.get(i) + step);
+			btl.set(i, btl.get(i) - step);	
+			bbr.set(i, bbr.get(i) + step);
+			bbl.set(i, bbl.get(i) - step);
 			for(int j = 0; j < i; j ++) {
-				atr.set(i, atr.get(j) + step);
-				atl.set(i, atl.get(j) - step);
-				abr.set(i, abr.get(j) + step);
-				abl.set(i, abl.get(j) - step);
-				Q.set(i, j, (cT(State, abl) + cT(Control, atr) - cT(Control, atl) - cT(Control, abr))/(4 * step * step));
+				btr.set(i, btr.get(j) + step);
+				btl.set(i, btl.get(j) - step);
+				bbr.set(i, bbr.get(j) + step);
+				bbl.set(i, bbl.get(j) - step);
+				Q.set(i, j, (cT(State, bbl) + cT(State, btr) - cT(State, btl) - cT(State, bbr))/(4 * step * step));
 				Q.set(j, i, Q.get(i, j));
-				atr.set(j, State.get(j));
-				atl.set(j, State.get(j));
-				abr.set(j, State.get(j));
-				abl.set(j, State.get(j));
+				btr.set(j, State.get(j));
+				btl.set(j, State.get(j));
+				bbr.set(j, State.get(j));
+				bbl.set(j, State.get(j));
 			}
-			atr.set(i, State.get(i));
-			atl.set(i, State.get(i));
-			abr.set(i, State.get(i));
-			abl.set(i, State.get(i));
+			btr.set(i, State.get(i));
+			btl.set(i, State.get(i));
+			bbr.set(i, State.get(i));
+			bbl.set(i, State.get(i));
 		}
 		return Q;
 	}
@@ -361,7 +364,7 @@ public class DiffDriveILQR {
 		ArrayList<SimpleMatrix> L = new ArrayList<>();
 		ArrayList<SimpleMatrix> l = new ArrayList<>();
 		for(int i = 0; i < horizon; i++) {
-			L.add(new SimpleMatrix(initState.numRows(), uNominal.numRows()));
+			L.add(new SimpleMatrix(uNominal.numRows(), initState.numRows()));
 		}
 		for(int i = 0; i < horizon; i++) {
 			l.add(uNominal);
@@ -389,7 +392,7 @@ public class DiffDriveILQR {
 		
 		for(int iter = 0; iter < maxIter; iter++) {
 			double newCost;
-			double alpha = 0;
+			double alpha = 1;
 			
 			//Forward Pass to get Nominal Trajectory
 			do {
@@ -399,7 +402,22 @@ public class DiffDriveILQR {
 				xHatNew.set(0, initState);
 				for(int t = 0; t < horizon; t++) {
 					//Compute Control
-					uHatNew.set(t, uHat.get(t).scale(1 - alpha).plus(L.get(t).mult(xHatNew.get(t).minus(xHat.get(t).scale(1-alpha)))).plus(l.get(t).scale(t)));
+					//uHatNew[t] = (1.0 - alpha)*uHat[t] + L[t]*(xHatNew[t] - (1.0 - alpha)*xHat[t]) + alpha*l[t];
+					SimpleMatrix Term1 = uHat.get(t).scale(1 - alpha);
+					SimpleMatrix Term3 = xHatNew.get(t).minus(xHat.get(t).scale(1-alpha));
+					SimpleMatrix Term4 = l.get(t).scale(alpha);
+					
+//					xHatNew.get(t).print();
+//					xHat.get(t).scale(1-alpha).print();
+//					xHatNew.get(t).minus(xHat.get(t).scale(1-alpha)).print();
+//					Term3.print();
+//					L.get(t).print();
+//					Term3.print();
+//					L.get(t).mult(Term3).print();
+//					Term1.plus(L.get(t).mult(Term3)).print();
+//					Term1.plus(L.get(t).mult(Term3)).plus(Term4).print();
+					
+					uHatNew.set(t, Term1.plus(L.get(t).mult(Term3)).plus(Term4));
 					
 					//Forward Step
 					xHatNew.set(t+1, Dynamics(xHatNew.get(t), uHatNew.get(t)));
@@ -438,12 +456,22 @@ public class DiffDriveILQR {
 				//Compute Jacobians of x and u, to quadratize cost
 				final SimpleMatrix A = dynJacobianX(xHat.get(t), uHat.get(t));//Jacobian WRT X
 				final SimpleMatrix B = dynJacobianU(xHat.get(t), uHat.get(t));//Jacobian WRT U
-				final SimpleMatrix c = xHat.get(t + 1).minus(A.mult(xHat.get(t))).minus(B.mult(uHat.get(t)));//xHat.get(t + 1).minus(A.mult(xHat.get(t))).minus(B.mult(uHat.get(t)));
+				
+				
+//				xHat.get(t).print();
+//				A.print();
+//				B.print();
+//				B.mult(uHat.get(t)).print();
+//				A.mult(xHat.get(t)).print();
+				
+				final SimpleMatrix c = xHat.get(t + 1).minus(A.mult(xHat.get(t))).minus(B.mult(uHat.get(t)));
+				//xHat.get(t + 1) - (A.mult(xHat.get(t))) - (B.mult(uHat.get(t)));
 				
 				SimpleMatrix P = cTHessian12(xHat.get(t), uHat.get(t));
 				SimpleMatrix Q = cTHessian1(xHat.get(t), uHat.get(t));
 				SimpleMatrix R = cTHessian2(xHat.get(t), uHat.get(t));
-				SimpleMatrix q = cTJacobian1(xHat.get(t), uHat.get(t)).minus(Q.mult(xHat.get(t))).minus(P.mult(uHat.get(t)));
+				//cT
+				SimpleMatrix q = cTJacobian1(xHat.get(t), uHat.get(t)).minus(Q.mult(xHat.get(t))).minus(P.transpose().mult(uHat.get(t)));
 				SimpleMatrix r = cTJacobian2(xHat.get(t), uHat.get(t)).minus(P.mult(xHat.get(t))).minus(R.mult(uHat.get(t)));
 				
 				//Quadratize Cost

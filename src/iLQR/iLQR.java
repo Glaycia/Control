@@ -12,13 +12,7 @@ public class iLQR {
 	//https://github.com/vvanirudh/iLQR/blob/master/ilqr.h
 	static final double DefaultStepSize = 0.0009765625;
 	
-	Function f;
-	Function ct;
-	Function cell;
-	Function quadratizeCost;
-	Function quadratizeFinalCost;
-	
-	SimpleMatrix dynJacobianX(SimpleMatrix a, SimpleMatrix b, double step){
+	SimpleMatrix dynJacobianX(Environment env, SimpleMatrix a, SimpleMatrix b, double step){
 		SimpleMatrix A = new SimpleMatrix(a.numRows(), b.numRows());
 		SimpleMatrix ar = a;
 		SimpleMatrix al = a;
@@ -28,17 +22,17 @@ public class iLQR {
 			al.set(i, al.get(i) - step);
 			
 			for(int j = 0; j < a.numRows(); j++) {
-				A.combine(i, 0, (f.function(ar, b).minus(f.function(al, b))).divide(2 * step));
+				A.combine(i, 0, (env.dynamics(ar, b).minus(env.dynamics(al, b))).divide(2 * step));
 			}
 			ar.set(i, 0, a.get(i, 0));
 			al.set(i, 0, a.get(i, 0));
 		}
 		return A;
 	}
-	SimpleMatrix dynJacobianX(SimpleMatrix a, SimpleMatrix b){
-		return dynJacobianX(a, b, DefaultStepSize);
+	SimpleMatrix dynJacobianX(Environment env, SimpleMatrix a, SimpleMatrix b){
+		return dynJacobianX(env, a, b, DefaultStepSize);
 	}
-	SimpleMatrix dynJacobianU(SimpleMatrix a, SimpleMatrix b, double step){
+	SimpleMatrix dynJacobianU(Environment env, SimpleMatrix a, SimpleMatrix b, double step){
 		SimpleMatrix B = new SimpleMatrix(a.numRows(), b.numRows());
 		SimpleMatrix br = b;
 		SimpleMatrix bl = b;
@@ -48,44 +42,32 @@ public class iLQR {
 			bl.set(i, bl.get(i) - step);
 			
 			for(int j = 0; j < b.numRows(); j++) {
-				B.combine(i, 0, (f.function(br, b).minus(f.function(bl, b))).divide(2 * step));
+				B.combine(i, 0, (env.dynamics(br, b).minus(env.dynamics(bl, b))).divide(2 * step));
 			}
 			br.set(i, 0, a.get(i, 0));
 			bl.set(i, 0, a.get(i, 0));
 		}
 		return B;
 	}
-	SimpleMatrix dynJacobianU(SimpleMatrix a, SimpleMatrix b){
-		return dynJacobianU(a, b, DefaultStepSize);
+	SimpleMatrix dynJacobianU(Environment env, SimpleMatrix a, SimpleMatrix b){
+		return dynJacobianU(env, a, b, DefaultStepSize);
 	}
 	
-	void iterativeLQR(int horizon, SimpleMatrix initState, SimpleMatrix uNominal, int maxIter) {
+	void iterativeLQR(Environment env, int horizon, SimpleMatrix initState, SimpleMatrix uNominal, int maxIter) {
 		ArrayList<SimpleMatrix> L = new ArrayList<>();
 		ArrayList<SimpleMatrix> l = new ArrayList<>();
-		for(int i = 0; i < horizon; i++) {
-			L.add(new SimpleMatrix(initState.numRows(), uNominal.numRows()));
-		}
-		for(int i = 0; i < horizon; i++) {
-			l.add(uNominal);
-		}
+		for(int i = 0; i < horizon; i++) L.add(new SimpleMatrix(initState.numRows(), uNominal.numRows()));
+		for(int i = 0; i < horizon; i++) l.add(uNominal);
 		
 		ArrayList<SimpleMatrix> xHat = new ArrayList<>();
 		ArrayList<SimpleMatrix> xHatNew = new ArrayList<>();
-		for(int i = 0; i < horizon + 1; i++) {
-			xHat.add(new SimpleMatrix(initState.numRows(), 1));
-		}
-		for(int i = 0; i < horizon + 1; i++) {
-			xHatNew.add(new SimpleMatrix(initState.numRows(), 1));
-		}
+		for(int i = 0; i < horizon + 1; i++) xHat.add(new SimpleMatrix(initState.numRows(), 1));
+		for(int i = 0; i < horizon + 1; i++) xHatNew.add(new SimpleMatrix(initState.numRows(), 1));
 		
 		ArrayList<SimpleMatrix> uHat = new ArrayList<>();
 		ArrayList<SimpleMatrix> uHatNew = new ArrayList<>();
-		for(int i = 0; i < horizon; i++) {
-			uHat.add(new SimpleMatrix(uNominal.numRows(), 1));
-		}
-		for(int i = 0; i < horizon; i++) {
-			uHatNew.add(new SimpleMatrix(uNominal.numRows(), 1));
-		}
+		for(int i = 0; i < horizon; i++) uHat.add(new SimpleMatrix(uNominal.numRows(), 1));
+		for(int i = 0; i < horizon; i++) uHatNew.add(new SimpleMatrix(uNominal.numRows(), 1));
 		
 		double oldCost = -Math.log(0);
 		
@@ -104,7 +86,7 @@ public class iLQR {
 					uHatNew.set(t, uHat.get(t).scale(1 - alpha).plus(L.get(t).mult(xHatNew.get(t).minus(xHat.get(t).scale(1-alpha)))).plus(l.get(t).scale(t)));
 					
 					//Forward Step
-					xHatNew.set(t+1, f.function(xHatNew.get(t), uHatNew.get(t)));
+					xHatNew.set(t+1, env.dynamics(xHatNew.get(t), uHatNew.get(t)));
 					
 					//Compute Cost
 					//newCost += ct.function(xHatNew.get(t), uHatNew.get(t), t); //Sadgers Need Gooder Java
