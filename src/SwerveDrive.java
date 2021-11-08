@@ -234,7 +234,7 @@ public class SwerveDrive {
      * </p>
      *
      * @param evenDist assuming each wheel is even distance from the center, in a square config
-     * @param velMax maximum velocity of each wheel
+      	* @param velMax maximum velocity of each wheel
      */
 	public SwerveDrive(double evenDist, double velMax) {
 		EquationMatrix.setColumn(2, 0, -evenDist, evenDist, evenDist, evenDist, -evenDist, -evenDist, evenDist, -evenDist);

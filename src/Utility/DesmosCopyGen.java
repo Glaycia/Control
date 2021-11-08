@@ -9,7 +9,7 @@ public class DesmosCopyGen {
         this.PointList = ListOfPoints;
     }
     double MagCheck(double in) {
-    	if(in < 1e-3) {
+    	if(Math.abs(in) < 1e-3) {
     		return 0;
     	}else {
     		return in;

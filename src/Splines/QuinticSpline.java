@@ -4,10 +4,13 @@ import java.util.ArrayList;
 
 public class QuinticSpline {
 	double samplenum = 100;
-	double length = 0;
+	public double length = 0;
+	public double tAdjLength = 0;
 	public ArrayList<Vector2> Pathpoints = new ArrayList<>();
 	public ArrayList<Splines.Waypoint> Waypoints = new ArrayList<>();
 	public ArrayList<Segment> Segments = new ArrayList<>();
+	
+	public ArrayList<Vector2> LengthByTime = new ArrayList<>();
 	
 	public QuinticSpline(ArrayList<Splines.Waypoint> DefinePath) {
 		this.Waypoints = DefinePath;
@@ -25,6 +28,7 @@ public class QuinticSpline {
 			for(double j = 0; j < 1; j += 1/samples) {
 				Segments.get(i).updateArray(j);
 				Pathpoints.add(new Vector2(Segments.get(i).interpolate().x, Segments.get(i).interpolate().y));
+				//System.out.println(Segments.get(i).interpolate().x);
 			}
 		}
 		Pathpoints.add(new Vector2(Waypoints.get(Waypoints.size() - 1).position.x, Waypoints.get(Waypoints.size() - 1).position.y));
@@ -32,12 +36,42 @@ public class QuinticSpline {
 	public void sampleSegments() {
 		sampleSegments(samplenum);
 	}
-	public void integrateLength() {
+	public void integrateLength(double scaleFactor) {
 		double currentSum = 0;
+		double currentThetaAdjustedSum = 0;
 		for(int i = Pathpoints.size() - 1; i > 0; i--) {
-			currentSum += Math.hypot(Pathpoints.get(i).x - Pathpoints.get(i - 1).x, Pathpoints.get(i).y - Pathpoints.get(i - 1).y);
+			double iSegLength = Math.hypot(Pathpoints.get(i).x - Pathpoints.get(i - 1).x, Pathpoints.get(i).y - Pathpoints.get(i - 1).y);
+			currentSum += iSegLength;
+			if(i > 1) {
+				double angleChange = Math.abs(Math.atan2(Pathpoints.get(i).x - Pathpoints.get(i - 1).x, Pathpoints.get(i).y - Pathpoints.get(i - 1).y)
+					- Math.atan2(Pathpoints.get(i - 1).x - Pathpoints.get(i - 2).x, Pathpoints.get(i - 1).y - Pathpoints.get(i - 2).y));
+				angleChange /= iSegLength;
+				angleChange *= scaleFactor;
+				while(Math.abs(angleChange - 0.1) > Math.PI) {
+					angleChange = 0;
+					//angleChange = Math.abs(angleChange);
+				}
+				//System.out.println(Math.cos(angleChange));
+				//angleChange *= samplenum;
+				//System.out.println(angleChange * 180/Math.PI);
+				
+				//System.out.println(angleChange + ", " + 1/Math.cos(angleChange) + ", " + iSegLength + ", " + iSegLength/Math.cos(angleChange) + ", " + (-iSegLength+iSegLength/Math.cos(angleChange)));
+				
+				currentThetaAdjustedSum += iSegLength/Math.cos(angleChange);
+			}else currentThetaAdjustedSum += iSegLength;
+			
+			//System.out.println(currentSum + ", " + currentThetaAdjustedSum + ", " + (currentThetaAdjustedSum - currentSum));
+			
 		}
+		tAdjLength = currentThetaAdjustedSum;
 		length = currentSum;
+		
+		LengthByTime.add(new Vector2(0, 0));
+		for(int i = 1; i < Pathpoints.size(); i++) {
+			double iSegLength = Math.hypot(Pathpoints.get(i).x - Pathpoints.get(i - 1).x, Pathpoints.get(i).y - Pathpoints.get(i - 1).y);
+			LengthByTime.add(new Vector2((double)i/Pathpoints.size(), LengthByTime.get(LengthByTime.size() - 1).y + iSegLength));
+			//System.out.println(iSegLength);
+		}
 	}
 	static public class Waypoint{
 		Vector2 position = new Vector2();
@@ -58,53 +92,6 @@ public class QuinticSpline {
 		}
 		double linearVelocity() {
 			return Math.sqrt(velocity.x * velocity.x + velocity.y + velocity.y);
-		}
-	}
-	static public class Segment{
-		Vector2 p0 = new Vector2();
-		Vector2 p1 = new Vector2();
-		Vector2 v0 = new Vector2();
-		Vector2 v1 = new Vector2();
-		Vector2 a0 = new Vector2();
-		Vector2 a1 = new Vector2();
-		
-		Segment(Vector2 p0, Vector2 p1){
-			this.p0 = p0;
-			this.p1 = p1;
-		}
-		Segment(Vector2 p0, Vector2 p1, Vector2 v0, Vector2 v1){
-			this.p0 = p0;
-			this.p1 = p1;
-			this.v0 = v0;
-			this.v1 = v1;
-		}
-		Segment(Vector2 p0, Vector2 p1, Vector2 v0, Vector2 v1, Vector2 a0, Vector2 a1){
-			this.p0 = p0;
-			this.p1 = p1;
-			this.v0 = v0;
-			this.v1 = v1;
-			this.a0 = a0;
-			this.a1 = a1;
-		}
-		
-		double array[] = {0, 0, 0, 0, 0, 0};
-		void updateArray(double t) {
-			array[0] = 1 + t * t * t * (-10 + 15 * t - 6 * t * t);
-			array[1] = t * t * t * (10 - 15 * t + 6 * t * t);
-			array[2] = t + t * t * t * (-6 + 8 * t - 3 * t * t);
-			array[3] = t * t * t * (-4 + 7 * t - 3 * t * t);
-			array[4] = t * t * (0.5 - 1.5 * t + 1.5 * t * t - 0.5 * t * t * t);
-			array[5] = t * t * t * (0.5 - 1 * t + 0.5 * t * t);
-		}
-		
-		public Vector2 interpolate() {
-			Vector2 p0s = p0.multiply(array[0]);
-			Vector2 p1s = p1.multiply(array[1]);
-			Vector2 v0s = v0.multiply(array[2]);
-			Vector2 v1s = v1.multiply(array[3]);
-			Vector2 a0s = a0.multiply(array[4]);
-			Vector2 a1s = a1.multiply(array[5]);
-			return p0s.plus(p1s).plus(v0s).plus(v1s).plus(a0s).plus(a1s);
 		}
 	}
 }

@@ -15,8 +15,16 @@ public class LQRFactory {
 	SimpleMatrix R; //Controls x Controls
 	//SimpleMatrix U; //Controls x 1
 	SimpleMatrix S; //Solving Matrix
-	SimpleMatrix K; //Controller Gain Matrix
+	public SimpleMatrix K; //Controller Gain Matrix
 	
+	
+	public LQRFactory() {}
+	public LQRFactory(SimpleMatrix A, SimpleMatrix B, SimpleMatrix Q, SimpleMatrix R) {
+		this.A = A;
+		this.B = B;
+		this.Q = Q;
+		this.R = R;
+	}
 	void CARERicattiArimotoPotter() {
 		//This one is Continuous, larger gains
 		//https://github.com/TakaHoribe/Riccati_Solver/blob/master/riccati_solver.cpp
@@ -74,7 +82,7 @@ public class LQRFactory {
 		
 		S = M1.invert().mult(M2);
 	}
-	void DAREIteration(int maxIter, double tolerance) {
+	public void DAREIteration(int maxIter, double tolerance) {
 		//https://github.com/TakaHoribe/Riccati_Solver/blob/master/riccati_solver.cpp
 		SimpleMatrix P = Q;
 		
@@ -103,7 +111,7 @@ public class LQRFactory {
 		}
 		
 	}
-	void computeK() {
+	public void computeK() {
 		K = R.invert().mult(B.transpose()).mult(S);
 	}
 }

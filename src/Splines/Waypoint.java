@@ -1,7 +1,7 @@
 package Splines;
 
 public class Waypoint{
-	//double time = 0;
+	public double time = 0;
 	public Vector2 position = new Vector2();
 	public Vector2 velocity = new Vector2();
 	public Vector2 acceleration = new Vector2();
@@ -41,6 +41,11 @@ public class Waypoint{
 		this.acceleration = acceleration;
 		this.userConstrainVelocity = true;
 		this.intendedVelocity = rVelocity;
+	}
+	
+	public void printDesmos(double velocityFactor) {	
+		String input = ("((1-t)(" + position.x + ") + t(" + (position.x + velocity.x * velocityFactor) + "), (1-t)(" + position.y + ") + t(" + (position.y + velocity.y * velocityFactor) + "))");
+        System.out.println(input);
 	}
 	/*
 	public Waypoint(double time, Vector2 position){

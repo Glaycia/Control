@@ -27,4 +27,8 @@ public class Vector2 {
 	public Vector2 minus(Vector2 vector) {
 		return new Vector2(x - vector.x, y - vector.y);
 	}
+	public Vector2 unit() {
+		return new Vector2(x/length(), y/length());
+	}
+
 }

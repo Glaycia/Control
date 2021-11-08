@@ -39,10 +39,16 @@ public class RVC {
 	line second = new line();
 	quad third = new quad();
 	
-	double p1;
-	double p2;
-	double p3;
-	double p4;
+	//Integral of Final Position
+	public tri int1;
+	public quad int2;
+	public tri int3;
+	
+	
+	public double p1;
+	public double p2;
+	public double p3;
+	public double p4;
 	
 	public RVC(double kJ, double kA) {
 		this.jerkLim = kJ;
@@ -55,7 +61,7 @@ public class RVC {
 		this.targetVel = targetVel;
 	}
 	
-	void setParams(double currentTime, double currentVel, double currentAcc, double newTarget) {
+	public void setParams(double currentTime, double currentVel, double currentAcc, double newTarget) {
 		targetVel = newTarget;
 		if(targetVel < currentVel) {
 			sign *= -1;
@@ -205,8 +211,16 @@ public class RVC {
 		p3 = tp3 + currentTime;
 		p4 = tp4 + currentTime;
 	}
-	
-	double returnVelocity(double x) {
+//	public double positionTraveresed() {
+//		//System.out.println(first.area(p1, p2));
+//		//System.out.println(second.area(p2, p3));
+//		//System.out.println(third.area(p3, p4));
+//		return first.area(p1, p2) + second.area(p2, p3) + third.area(p3, p4);
+//	}
+	public double positionTraveresed() {
+		return (p4 - p1)*(returnVelocity(p1) + returnVelocity(p4))/2;
+	}
+	public double returnVelocity(double x) {
 		if(x < p1) {
 			return Math.PI;
 		}else if(x >= p1 && x < p2) {
@@ -244,6 +258,24 @@ public class RVC {
 		}
 	}
 	
+	public void discoverIntegral(double offset) {
+		int1 = new tri(first, offset);
+		int1.x1 = p1;
+		int1.x2 = p2;
+		int2 = new quad();
+		int2.setParab(second.m/2, second.b, int1.yAtX(p2));
+		int2.x1 = p2;
+		int2.x2 = p3;
+		int3 = new tri(third, 0);
+		int3.d = int2.findYAtX(p3) - int3.yAtX(p3);
+		int3.x1 = p3;
+		int3.x2 = p4;
+		
+		int1.print();
+		System.out.println(int2.a + "x^{2} + " + int2.b + "x + " + int2.c + " = y \\left\\{" + p2 + "<x<" + p3 + "\\right\\}");
+		int3.print();
+	}
+	
 	//kV * velocity + kA * acceleration + kPV * (measuredVelocity - velocity) + kPP * (measuredPosition - position)
 	
 	void printTestProfile() {
@@ -251,7 +283,7 @@ public class RVC {
 		System.out.println("y = " + test2.m + "(x - " + 0 + ") + " + test2.b + " \\left\\{" + tp2 + "<x<" + tp3 + "\\right\\}");
 		System.out.println(test3.a + "x^{2} + " + test3.b + "x + " + test3.c + " = y \\left\\{" + tp3 + "<x<" + tp4 + "\\right\\}");
 	}
-	void printProfile() {
+	public void printProfile() {
 		System.out.println(first.a + "x^{2} + " + first.b + "x + " + first.c + " = y \\left\\{" + p1 + "<x<" + p2 + "\\right\\}"); //x^{2}
 		System.out.println("y = " + second.m + "(x - " + 0 + ") + " + second.b + " \\left\\{" + p2 + "<x<" + p3 + "\\right\\}");
 		System.out.println(third.a + "x^{2} + " + third.b + "x + " + third.c + " = y \\left\\{" + p3 + "<x<" + p4 + "\\right\\}");
@@ -260,6 +292,76 @@ public class RVC {
 		return Math.abs(input)/input;
 	}
 	
+	public class tri{
+		double a;
+		double b;
+		double c;
+		double d;
+		
+		double x1;
+		double x2;
+		
+		public tri(quad p, double offset) {
+			this.a = p.a/3;
+			this.b = p.b/2;
+			this.c = p.c;
+			this.d = offset;
+			this.x1 = p.x1;
+			this.x2 = p.x2;
+		}
+		
+		public double yAtX(double x) {
+			return a * x * x * x + b * x * x + c * x + d;
+		}
+		public double xAtY(double y) {
+			double na = b/a;
+			double nb = c/a;
+			double nc = d/a;
+			
+			double adiv3 = a/3;
+			double Q = (3 * nb - na * na)/9;
+			double Qcb = Q * Q * Q;
+			double R = (9 * na * nb - 27 * nc - 2 * na * na * na)/54;
+			double Rsq = R * R;
+			double D = Qcb + Rsq;
+			if (D < 0.0)
+			{
+			// Three unequal real roots.
+			//nRoots = 3;
+			double theta = Math.acos (R / Math.sqrt (-Qcb));
+			double SQRT_Q = Math.sqrt (-Q);
+//			x1 = 2.0 * SQRT_Q * Math.cos (theta/3.0) - a/3;
+//			x2 = 2.0 * SQRT_Q * Math.cos ((theta+2*Math.PI)/3.0) - adiv3;
+//			x3 = 2.0 * SQRT_Q * Math.cos ((theta+4*Math.PI)/3.0) - adiv3;
+			return 2.0 * SQRT_Q * Math.cos (theta/3.0) - a/3;
+			}
+		else if (D > 0.0)
+			{
+			// One real root.
+			//nRoots = 1;
+			double SQRT_D = Math.sqrt (D);
+			double S = Math.cbrt (R + SQRT_D);
+			double T = Math.cbrt (R - SQRT_D);
+//			x1 = (S + T) - a_over_3;
+//			x2 = Double.NaN;
+//			x3 = Double.NaN;
+			return S+T-adiv3;
+			}
+		else
+			{
+			// Three real roots, at least two equal.
+			//nRoots = 3;
+			double CBRT_R = Math.cbrt (R);
+//			x1 = 2*CBRT_R - adiv3;
+//			x2 = x3 = CBRT_R - adiv3;
+			return 2*CBRT_R - adiv3;
+			}
+		}
+		
+		public void print() {
+			System.out.println(a + "x^{3} + " + b + "x^{2} + " + c + "x + " + d + " = y \\left\\{" + x1 + "<x<" + x2 + "\\right\\}");
+		}
+	}
 	class quad {
 		double a;
 		double b;
@@ -267,7 +369,6 @@ public class RVC {
 		
 		double x1;
 		double x2;
-		
 		double x1() {
 			double termSum = a * Math.pow(x1, 3)/3 + b * Math.pow(x1, 2)/2 + x1 * c;
 			return Math.abs(termSum/(-1));
@@ -347,6 +448,7 @@ public class RVC {
 		double x1;
 		double x2;
 		
+		//Integral = mx^2/2 + bx
 		double x1() {
 			double termSum = m * Math.pow(x1, 2)/2 + x1 * b;
 			return Math.abs(termSum/(-1));
